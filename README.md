@@ -1,20 +1,20 @@
-# @timhall/opa-client
+# @timhall/opa
 
-`@timhall/opa-client` builds on `@open-policy-agent/opa-wasm` to add support for loading Open Policy Agent policy bundles and polling for changes.
+`@timhall/opa` builds on `@open-policy-agent/opa-wasm` to add support for loading Open Policy Agent policy bundles and polling for changes.
 
 ## Example
 
 ```ts
-import { join } from "path";
-import { OpaClient } from "@timhall/opa-client";
+import { resolve } from "path";
+import { OpaClient } from "@timhall/opa";
 
 export const opa = new OpaClient({
-  config: join(__dirname, "../config.yaml"),
+  config: resolve(__dirname, "../config.yaml"),
 });
 await opa.load();
 
 const input = {};
-const result = await opa.evaluate(input);
+const result = opa.evaluate(input);
 ```
 
 ### Building policies / bundles
@@ -37,35 +37,14 @@ Initialize a new OPA client for loading and evaluating policies and bundles.
 Options:
 
 - `[config]`: JSON configuration or path to [OPA configuration](https://www.openpolicyagent.org/docs/latest/configuration/#bundles) JSON or YAML (optional). Note: only some configuration fields are currently supported
-- `[url]`: Evaluate policies using an OPA daemon REST API
 - `[agent]`: http agent to use for any requests (optional).
 
 ```ts
 import { resolve } from "path";
 
 // Load from OPA configuration at path
-let opa = new OpaClient({ config: resolve(__dirname, "../config.yaml") });
-
-// Load with OPA configuration
-opa = new OpaClient({
-  config: {
-    services: {
-      acmecorp: {
-        url: "https://example.com/control-plane-api/v1",
-      },
-    },
-    bundles: {
-      authz: {
-        service: "acmecorp",
-        resource: "bundles/http/example/authz.tar.gz",
-      },
-    },
-  },
-});
-
-// Connect to separate OPA daemon
-opa = new OpaClient({
-  url: "http://opa/v0/data/authz",
+let opa = new OpaClient({
+  config: resolve(__dirname, "../config.yaml"),
 });
 ```
 
@@ -74,10 +53,12 @@ opa = new OpaClient({
 Load client from configuration, waiting for bundle to be ready.
 
 ```ts
-import { join } from "path";
-import { OpaClient } from "@timhall/opa-client";
+import { resolve } from "path";
+import { OpaClient } from "@timhall/opa";
 
-const opa = new OpaClient({ config: join(__dirname, "../config.yaml") });
+const opa = new OpaClient({
+  config: resolve(__dirname, "../config.yaml"),
+});
 await opa.load();
 
 // Evaluate using bundle loaded from configuration
@@ -95,7 +76,7 @@ Load policy bundle (policy and data) for evaluation.
 
 ```ts
 import { readFile } from "fs/promises";
-import { OpaClient } from "@timhall/opa-client";
+import { OpaClient } from "@timhall/opa";
 
 const opa = new OpaClient();
 
@@ -112,7 +93,7 @@ Load wasm policy for evaluation.
 
 ```ts
 import { readFile } from "fs/promises";
-import { OpaClient } from "@timhall/opa-client";
+import { OpaClient } from "@timhall/opa";
 
 const opa = new OpaClient();
 
@@ -127,17 +108,31 @@ const result = await opa.evaluate(input);
 
 Set [base document](https://www.openpolicyagent.org/docs/latest/philosophy/#the-opa-document-model) for use when evaluating the policy. Overrides any previously defined data, including data from bundles.
 
-### `OpaClient.evaluate(input?, entrypoint?): Promise<object>`
+```ts
+import { readFile } from "fs/promises";
+import { OpaClient } from "@timhall/opa";
+
+const opa = new OpaClient();
+
+const policy = await readFile("./policy.wasm");
+await opa.loadPolicy(policy);
+opa.setData({ networks: [] });
+
+const input = {};
+const result = await opa.evaluate(input);
+```
+
+### `OpaClient.evaluate(input?, entrypoint?): object`
 
 Evaluate the given input data against the loaded policy or bundle, with an optional entrypoint to limit the evaluation.
 
 ```ts
 import { readFile } from "fs/promises";
-import { OpaClient } from "@timhall/opa-client";
+import { OpaClient } from "@timhall/opa";
 
 const opa = new OpaClient();
 
-let result = await opa.evaluate();
+let result = opa.evaluate();
 // result = {} with no policy/bundle
 
 const bundle = await readFile("./bundle.tar.gz");
@@ -147,8 +142,8 @@ const input = {
   subject: { email: "..." },
   operation: "GET /",
 };
-result = await opa.evaluate(input);
+result = opa.evaluate(input);
 
 // Limit the evaluation to example/allow entrypoint
-result = await opa.evaluate(input, "example/allow");
+result = opa.evaluate(input, "example/allow");
 ```
