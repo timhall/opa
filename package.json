@@ -25,7 +25,8 @@
 	},
 	"homepage": "https://github.com/timhall/opa-client#readme",
 	"dependencies": {
-		"@open-policy-agent/opa-wasm": "^1.2.0"
+		"@open-policy-agent/opa-wasm": "^1.2.0",
+		"tar": "^6.1.11"
 	},
 	"devDependencies": {
 		"@jest/globals": "^27.1.0",
