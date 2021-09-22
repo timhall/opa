@@ -2,13 +2,11 @@
 	"name": "@timhall/opa",
 	"version": "0.0.0",
 	"description": "Open Policy Agent client with bundle loading",
-	"main": "dist/index.js",
-	"scripts": {
-		"test": "jest"
-	},
+	"author": "Tim Hall <tim.hall.engr@gmail.com>",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/timhall/opa-client.git"
+		"url": "git+https://github.com/timhall/opa.git"
 	},
 	"keywords": [
 		"OPA",
@@ -18,18 +16,22 @@
 		"bundle",
 		"bundles"
 	],
-	"author": "Tim Hall <tim.hall.engr@gmail.com>",
-	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/timhall/opa-client/issues"
+		"url": "https://github.com/timhall/opa/issues"
 	},
-	"homepage": "https://github.com/timhall/opa-client#readme",
+	"homepage": "https://github.com/timhall/opa#readme",
+	"main": "dist/index.js",
+	"scripts": {
+		"test": "jest",
+		"build:policies": "docker run --mount type=bind,source=/$PWD/src/__fixtures__,target=/usr/app openpolicyagent/opa build -t wasm -e example -o ./usr/app/bundle.tar.gz ./usr/app/policies && cd ./src/__fixtures__ && tar -xzf ./bundle.tar.gz /policy.wasm /data.json"
+	},
 	"dependencies": {
 		"@open-policy-agent/opa-wasm": "^1.2.0",
 		"tar": "^6.1.11"
 	},
 	"devDependencies": {
 		"@jest/globals": "^27.1.0",
+		"@tsconfig/node14": "^1.0.1",
 		"jest": "^27.1.0",
 		"ts-jest": "^27.0.5",
 		"typescript": "^4.4.2"

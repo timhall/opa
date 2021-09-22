@@ -1,0 +1,4 @@
+{
+	"readonly": [{ "operations": ["a"] }],
+	"admin": [{ "operations": ["a", "b"] }]
+}

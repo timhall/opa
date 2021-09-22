@@ -1,7 +1,7 @@
 import { Readable } from "stream";
 import { bufferToStream, streamToBuffer } from "./fs";
-import zlib from "zlib";
-import tar from "tar";
+import { createGunzip } from "zlib";
+import { Parse } from "tar";
 
 export interface Bundle {
 	policy: Buffer;
@@ -17,7 +17,10 @@ export async function parseBundle(bundle: Buffer | Readable): Promise<Bundle> {
 	const data = Buffer.isBuffer(bundle) ? bufferToStream(bundle) : bundle;
 
 	const result = await new Promise<ParseResult>((resolve, reject) => {
-		const parsing = data.pipe(zlib.createGunzip()).pipe(tar.Parse());
+		const unzip = createGunzip();
+		const parse = new Parse();
+
+		const parsing = data.pipe(unzip).pipe(parse);
 		const result: ParseResult = {};
 
 		parsing.on("entry", async (entry) => {
@@ -60,10 +63,21 @@ function parseJson(raw: Buffer): Record<string, unknown> {
 
 		return data;
 	} catch (error) {
-		throw new Error(`Failed to parse /data.json, ${error.message}`);
+		throw new Error(
+			`Failed to parse /data.json, ${isError(error) ? error.message : error}`
+		);
 	}
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isError(error: unknown): error is Error {
+	return (
+		typeof error === "object" &&
+		error != null &&
+		"message" in error &&
+		"stack" in error
+	);
 }
