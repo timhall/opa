@@ -20,7 +20,9 @@
 		"url": "https://github.com/timhall/opa/issues"
 	},
 	"homepage": "https://github.com/timhall/opa#readme",
-	"main": "dist/index.js",
+	"main": "./dist/index.js",
+	"exports": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"scripts": {
 		"test": "jest",
 		"build": "tsc --build",
