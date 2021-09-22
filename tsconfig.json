@@ -1,6 +1,10 @@
 {
 	"extends": "@tsconfig/node14/tsconfig.json",
 	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "dist",
 		"typeRoots": ["./node_modules/@types", "./types"]
-	}
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/**/__tests__/**/*.ts", "src/**/__fixtures__/**/*.ts"]
 }
